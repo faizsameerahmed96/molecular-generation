@@ -3,6 +3,9 @@ import torch
 from collections import Counter
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import pickle
+from rdkit import Chem
 
 df = pd.read_csv('../data/train.csv')
 smiles_list = df['SMILES'].sample(frac=0.1).tolist()
@@ -32,7 +35,7 @@ class Encoder(nn.Module):
     def __init__(self, vocab_size, emb_dim, hidden_dim, latent_dim):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, emb_dim)
-        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=1, batch_first=True)
+        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=3, batch_first=True)
         self.fc_mu = nn.Linear(hidden_dim, latent_dim)
         self.fc_logvar = nn.Linear(hidden_dim, latent_dim)
 
@@ -52,11 +55,11 @@ class Decoder(nn.Module):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, emb_dim)
         self.fc = nn.Linear(latent_dim, hidden_dim)
-        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=1, batch_first=True)
+        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=3, batch_first=True)
         self.out = nn.Linear(hidden_dim, vocab_size)
 
     def forward(self, z, x):
-        h = torch.tanh(self.fc(z)).unsqueeze(0)
+        h = torch.tanh(self.fc(z)).unsqueeze(0).repeat(self.lstm.num_layers, 1, 1)
         c = torch.zeros_like(h)
         x = self.embedding(x)
         output, _ = self.lstm(x, (h, c))
@@ -86,7 +89,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 dataset = TensorDataset(input_tensor)
 loader = DataLoader(dataset, batch_size=128, shuffle=True)
 
-for epoch in range(5):
+for epoch in range(40):
     model.train()
     total_loss = 0
     for batch, in tqdm(loader):
@@ -118,13 +121,30 @@ with torch.no_grad():
     print("Generated SMILES:", decoded)
 
 
-from rdkit import Chem
 mol = Chem.MolFromSmiles(decoded)
 if mol:
     print("Valid molecule!")
 else:
     print("Invalid SMILES.")
 
+
+# Save the model
+save_path = "vae_model.pt"
+
+torch.save({
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    'stoi': stoi,
+    'itos': itos,
+    'config': {
+        'vocab_size': len(vocab),
+        'emb_dim': 128,
+        'hidden_dim': 512,
+        'latent_dim': 64
+    }
+}, save_path)
+
+print(f"Model saved to {save_path}")
 
 
 # Vislaize
@@ -152,8 +172,6 @@ from sklearn.decomposition import PCA
 pca = PCA(n_components=2)
 latents_2d = pca.fit_transform(latents)
 
-
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(8, 6))
 scatter = plt.scatter(latents_2d[:, 0], latents_2d[:, 1], 
