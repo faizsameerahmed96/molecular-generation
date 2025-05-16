@@ -8,7 +8,7 @@ import pickle
 from rdkit import Chem
 
 df = pd.read_csv('../data/train.csv')
-smiles_list = df['SMILES'].sample(frac=0.1).tolist()
+smiles_list = df['SMILES'].sample(frac=0.05).tolist()
 
 def tokenize(smiles):
     return list(smiles)  # character-level
@@ -35,7 +35,7 @@ class Encoder(nn.Module):
     def __init__(self, vocab_size, emb_dim, hidden_dim, latent_dim):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, emb_dim)
-        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=3, batch_first=True)
+        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=1, batch_first=True, )
         self.fc_mu = nn.Linear(hidden_dim, latent_dim)
         self.fc_logvar = nn.Linear(hidden_dim, latent_dim)
 
@@ -53,9 +53,9 @@ def reparameterize(mu, logvar):
 class Decoder(nn.Module):
     def __init__(self, vocab_size, emb_dim, hidden_dim, latent_dim):
         super().__init__()
-        self.embedding = nn.Embedding(vocab_size, emb_dim)
         self.fc = nn.Linear(latent_dim, hidden_dim)
-        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=3, batch_first=True)
+        self.embedding = nn.Embedding(vocab_size, emb_dim)
+        self.lstm = nn.LSTM(emb_dim, hidden_dim, num_layers=1, batch_first=True)
         self.out = nn.Linear(hidden_dim, vocab_size)
 
     def forward(self, z, x):
@@ -66,7 +66,7 @@ class Decoder(nn.Module):
         return self.out(output)
     
 class VAE(nn.Module):
-    def __init__(self, vocab_size, emb_dim=128, hidden_dim=512, latent_dim=64):
+    def __init__(self, vocab_size, emb_dim=64, hidden_dim=1024, latent_dim=256):
         super().__init__()
         self.encoder = Encoder(vocab_size, emb_dim, hidden_dim, latent_dim)
         self.decoder = Decoder(vocab_size, emb_dim, hidden_dim, latent_dim)
@@ -77,10 +77,18 @@ class VAE(nn.Module):
         x_recon = self.decoder(z, x[:, :-1])  # teacher forcing
         return x_recon, mu, logvar
     
-def vae_loss(recon_logits, x, mu, logvar):
+def vae_loss(epoch, recon_logits, x, mu, logvar):
     recon_loss = nn.CrossEntropyLoss(ignore_index=stoi['<pad>'])(recon_logits.view(-1, recon_logits.size(-1)), x[:, 1:].contiguous().view(-1))
     kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) / x.size(0)
-    return 500 * recon_loss + kl_loss
+    kl_weight = min(1.0, epoch / 10)
+
+    kl_loss = kl_weight * kl_loss
+    recon_loss = recon_loss * 500
+
+    print("KL Loss " + str(kl_loss))
+    print("Reconstruction Loss = " + str(recon_loss))
+
+    return recon_loss + kl_loss
 
 
 model = VAE(len(vocab)).to("mps")
@@ -89,14 +97,16 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 dataset = TensorDataset(input_tensor)
 loader = DataLoader(dataset, batch_size=128, shuffle=True)
 
-for epoch in range(40):
+for epoch in range(5):
     model.train()
     total_loss = 0
     for batch, in tqdm(loader):
         batch = batch.to("mps")
         optimizer.zero_grad()
         recon_logits, mu, logvar = model(batch)
-        loss = vae_loss(recon_logits, batch, mu, logvar)
+        print("Mu = " + str(mu))
+        print("logvar = " + str(logvar))
+        loss = vae_loss(epoch, recon_logits, batch, mu, logvar)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
