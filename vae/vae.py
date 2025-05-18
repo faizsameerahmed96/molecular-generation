@@ -138,8 +138,8 @@ def vae_loss(epoch, recon_logits, x, mu, logvar):
             "total_loss": (recon_loss + kl_loss).item(),
             "mu_mean": mu.mean().item(),
             "logvar_mean": logvar.mean().item(),
-            "mu_hist": wandb.Histogram(mu.cpu()),
-            "logvar_hist": wandb.Histogram(logvar.cpu())
+            "mu_hist": wandb.Histogram(mu.detach().cpu()),
+            "logvar_hist": wandb.Histogram(logvar.detach().cpu())
         }
     )
 
