@@ -17,6 +17,8 @@ learning_rate = 1e-4
 total_epochs = 30
 data_frac = 0.2
 
+temperature = 0.5
+
 device = "cuda" if torch.cuda.is_available() else "mps"
 
 
@@ -30,6 +32,7 @@ wandb.init(
         "learning_rate": learning_rate,
         "epochs": total_epochs,
         "data_frac": data_frac,
+        "temperature": temperature,
     },
 )
 
@@ -177,7 +180,8 @@ def generate_smiles(i):
         for _ in range(MAX_LEN):
             inp = torch.cat(generated, dim=1)
             logits = model.decoder(z, inp)
-            next_token = logits[:, -1, :].argmax(dim=-1, keepdim=True)
+            probs = torch.softmax(logits[:, -1, :] / temperature, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
             generated.append(next_token)
             if next_token.item() == stoi["<eos>"]:
                 break
@@ -198,7 +202,8 @@ def generate_smiles(i):
             print("Invalid SMILES.")
         
         wandb.log({
-            "generated_smiles": decoded
+            "generated_smiles": decoded,
+            "temperature": temperature,
         }, step=i)
 
 
@@ -208,7 +213,7 @@ for i in range(SMILES_TO_GENERATE):
 
 
 # Save the model
-save_path = f"vae_model_{wandb.run.name}.pt"
+save_path = f"vae_model.pt"
 
 torch.save(
     {
@@ -227,6 +232,20 @@ torch.save(
 )
 
 print(f"Model saved to {save_path}")
+
+artifact = wandb.Artifact(
+    name="vae-model",
+    type="model",
+    metadata={
+        "epochs": total_epochs,
+        "latent_dim": latent_dim,
+        "hidden_dim": hidden_dim,
+        "emb_dim": emb_dim,
+        "learning_rate": learning_rate
+    }
+)
+artifact.add_file(save_path)
+wandb.log_artifact(artifact)
 
 
 # Visualize the latent space
