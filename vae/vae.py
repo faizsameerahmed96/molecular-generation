@@ -13,9 +13,11 @@ latent_dim = 256
 hidden_dim = 1024
 emb_dim = 64
 batch_size = 128
-learning_rate = 1e-3
-total_epochs = 5
-data_frac = 0.05
+learning_rate = 1e-4
+total_epochs = 30
+data_frac = 0.2
+
+device = "cuda" if torch.cuda.is_available() else "mps"
 
 
 wandb.init(
@@ -133,6 +135,8 @@ def vae_loss(epoch, recon_logits, x, mu, logvar):
             "total_loss": (recon_loss + kl_loss).item(),
             "mu_mean": mu.mean().item(),
             "logvar_mean": logvar.mean().item(),
+            "mu_hist": wandb.Histogram(mu.cpu()),
+            "logvar_hist": wandb.Histogram(logvar.cpu())
         }
     )
 
@@ -141,7 +145,7 @@ def vae_loss(epoch, recon_logits, x, mu, logvar):
 
 model = VAE(
     len(vocab), latent_dim=latent_dim, emb_dim=emb_dim, hidden_dim=hidden_dim
-).to("mps")
+).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 dataset = TensorDataset(input_tensor)
@@ -151,7 +155,7 @@ for epoch in range(total_epochs):
     model.train()
     total_loss = 0
     for (batch,) in tqdm(loader):
-        batch = batch.to("mps")
+        batch = batch.to(device)
         optimizer.zero_grad()
         recon_logits, mu, logvar = model(batch)
         loss = vae_loss(epoch, recon_logits, batch, mu, logvar)
@@ -166,8 +170,8 @@ model.eval()
 
 def generate_smiles(i):
     with torch.no_grad():
-        z = torch.randn(1, latent_dim).to("mps")
-        start_token = torch.tensor([[stoi["<bos>"]]]).to("mps")
+        z = torch.randn(1, latent_dim).to(device)
+        start_token = torch.tensor([[stoi["<bos>"]]]).to(device)
         generated = [start_token]
 
         for _ in range(MAX_LEN):
@@ -204,7 +208,7 @@ for i in range(SMILES_TO_GENERATE):
 
 
 # Save the model
-save_path = "vae_model.pt"
+save_path = f"vae_model_{wandb.run.name}.pt"
 
 torch.save(
     {
@@ -236,7 +240,7 @@ labels = []  # optional — e.g., molecular weight, scaffold class, etc.
 
 with torch.no_grad():
     for (batch,) in DataLoader(dataset, batch_size=64):
-        batch = batch.to("mps")
+        batch = batch.to(device)
         mu, logvar = model.encoder(batch)
         z = mu  # or reparameterize(mu, logvar)
         latents.append(z.cpu())

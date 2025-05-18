@@ -1,0 +1,7 @@
+{"time":"2025-05-18T15:29:02.750631-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/Users/faizahmed/Documents/SJSU/CS271/project/vae/wandb/run-20250518_152902-w5bq9fi2/logs/debug-core.log"}
+{"time":"2025-05-18T15:29:03.12775-04:00","level":"INFO","msg":"created new stream","id":"w5bq9fi2"}
+{"time":"2025-05-18T15:29:03.127814-04:00","level":"INFO","msg":"stream: started","id":"w5bq9fi2"}
+{"time":"2025-05-18T15:29:03.127843-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"w5bq9fi2"}
+{"time":"2025-05-18T15:29:03.12808-04:00","level":"INFO","msg":"handler: started","stream_id":"w5bq9fi2"}
+{"time":"2025-05-18T15:29:03.1281-04:00","level":"INFO","msg":"sender: started","stream_id":"w5bq9fi2"}
+{"time":"2025-05-18T15:29:03.240552-04:00","level":"INFO","msg":"Starting system monitor"}
