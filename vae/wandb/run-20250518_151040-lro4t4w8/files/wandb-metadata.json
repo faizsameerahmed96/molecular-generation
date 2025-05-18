@@ -1,0 +1,43 @@
+{
+  "os": "macOS-15.4.1-arm64-arm-64bit",
+  "python": "CPython 3.11.8",
+  "startedAt": "2025-05-18T19:10:41.006600Z",
+  "program": "/Users/faizahmed/Documents/SJSU/CS271/project/vae/vae.py",
+  "codePath": "vae/vae.py",
+  "git": {
+    "commit": "8a42904b64b3e912654fa475165b38ba48c78e0a"
+  },
+  "email": "faizsameerahmed96@gmail.com",
+  "root": "/Users/faizahmed/Documents/SJSU/CS271/project/vae",
+  "host": "Faizs-MacBook-Pro.local",
+  "executable": "/Users/faizahmed/.pyenv/versions/3.11.8/bin/python",
+  "codePathLocal": "vae.py",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "994662584320",
+      "used": "666813251584"
+    },
+    "/System/Volumes/Data": {
+      "total": "994662584320",
+      "used": "666813251584"
+    }
+  },
+  "memory": {
+    "total": "34359738368"
+  },
+  "cpu": {
+    "count": 12,
+    "countLogical": 12
+  },
+  "apple": {
+    "name": "Apple M2 Pro",
+    "ecpuCores": 4,
+    "pcpuCores": 8,
+    "gpuCores": 19,
+    "memoryGb": 32,
+    "swapTotalBytes": "2147483648",
+    "ramTotalBytes": "34359738368"
+  }
+}

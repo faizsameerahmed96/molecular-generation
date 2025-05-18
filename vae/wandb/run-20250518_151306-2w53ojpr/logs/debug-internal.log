@@ -1,0 +1,15 @@
+{"time":"2025-05-18T15:13:06.578266-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.11","symlink path":"/Users/faizahmed/Documents/SJSU/CS271/project/vae/wandb/run-20250518_151306-2w53ojpr/logs/debug-core.log"}
+{"time":"2025-05-18T15:13:06.750071-04:00","level":"INFO","msg":"created new stream","id":"2w53ojpr"}
+{"time":"2025-05-18T15:13:06.750113-04:00","level":"INFO","msg":"stream: started","id":"2w53ojpr"}
+{"time":"2025-05-18T15:13:06.75013-04:00","level":"INFO","msg":"sender: started","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:13:06.750122-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:13:06.750146-04:00","level":"INFO","msg":"handler: started","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:13:06.888134-04:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-18T15:19:42.326205-04:00","level":"INFO","msg":"stream: closing","id":"2w53ojpr"}
+{"time":"2025-05-18T15:19:42.326243-04:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-18T15:19:42.32644-04:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-18T15:19:42.682919-04:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-18T15:19:42.799712-04:00","level":"INFO","msg":"handler: closed","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:19:42.799724-04:00","level":"INFO","msg":"writer: Close: closed","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:19:42.799733-04:00","level":"INFO","msg":"sender: closed","stream_id":"2w53ojpr"}
+{"time":"2025-05-18T15:19:42.799808-04:00","level":"INFO","msg":"stream: closed","id":"2w53ojpr"}
