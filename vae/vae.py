@@ -15,8 +15,8 @@ hidden_dim = 1024
 emb_dim = 64
 batch_size = 128
 learning_rate = 1e-4
-total_epochs = 3
-data_frac = 0.05
+total_epochs = 30
+data_frac = 0.2
 
 temperature = 0.5
 
