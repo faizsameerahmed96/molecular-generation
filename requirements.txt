@@ -2,5 +2,6 @@ torch
 pandas
 matplotlib
 tqdm
-rdkit
+rdkit-pypi
 wandb
+scikit-learn
