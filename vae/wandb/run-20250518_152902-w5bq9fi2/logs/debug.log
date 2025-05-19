@@ -20,3 +20,4 @@ config: {'latent_dim': 256, 'hidden_dim': 1024, 'emb_dim': 64, 'batch_size': 128
 2025-05-18 15:29:03,518 INFO    MainThread:21240 [wandb_run.py:_redirect():2490] Wrapping output streams.
 2025-05-18 15:29:03,518 INFO    MainThread:21240 [wandb_run.py:_redirect():2513] Redirects installed.
 2025-05-18 15:29:03,520 INFO    MainThread:21240 [wandb_init.py:init():1150] run started, returning control to user process
+2025-05-18 16:43:31,574 INFO    MsgRouterThr:21240 [mailbox.py:close():129] [no run ID] Closing mailbox, abandoning 1 handles.

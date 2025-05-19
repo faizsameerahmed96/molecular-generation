@@ -8,14 +8,15 @@ import wandb
 from rdkit import Chem
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
+from sklearn.decomposition import PCA
 
 latent_dim = 256
 hidden_dim = 1024
 emb_dim = 64
 batch_size = 128
 learning_rate = 1e-4
-total_epochs = 30
-data_frac = 0.2
+total_epochs = 3
+data_frac = 0.05
 
 temperature = 0.5
 
@@ -248,10 +249,6 @@ artifact.add_file(save_path)
 wandb.log_artifact(artifact)
 
 
-# Visualize the latent space
-
-import torch
-from tqdm import tqdm
 
 model.eval()
 latents = []
@@ -269,8 +266,6 @@ with torch.no_grad():
         )  # e.g., length of SMILES
 
 latents = torch.cat(latents).numpy()
-
-from sklearn.decomposition import PCA
 
 pca = PCA(n_components=2)
 latents_2d = pca.fit_transform(latents)
